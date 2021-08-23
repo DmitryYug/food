@@ -136,13 +136,13 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    window.addEventListener('scroll', showModalByScroll)
+    window.addEventListener('scroll', showModalByScroll);
 
 
 
 // 048 Используем классы в реальной работе + 049 Rest оператор
 
-
+    
     class MenuCard {
         constructor(src, alt, title, description, price, parentSelector, ...classes) {
             this.src = src,
@@ -184,33 +184,29 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    new MenuCard(
-        'img/tabs/vegy.jpg',
-        'fitness',
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        229,
-        '.menu .container'
-        ).render();
+    const getResource = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        'img/tabs/elite.jpg',
-        'elite',
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        100,
-        '.menu .container',
-        ).render();
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
+        return await res.json();
+    };
+    
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => {
+    //         data.forEach(({img, altimg, title, descr, price}) => {
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
+    //         });
+    //     });
 
-    new MenuCard(
-        'img/tabs/post.jpg',
-        'post',
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков. ',
-        72,
-        '.menu .container'
-    ).render();
-
+    axios.get('http://localhost:3000/menu')
+        .then (data => {
+            data.data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
+        });
+    });
+    
 // 053 Реализация скрипта отправки данных на сервер
 // 056 Fetch API
     
@@ -221,8 +217,19 @@ window.addEventListener('DOMContentLoaded', () => {
                 load: 'img/form/spinner.svg'
             };
     
+    const postData = async (url, data) => {
+        const res = await fetch (url, {
+            method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: data
+        });
+        return await res.json();
+    };
 
-    function pushData (form) {
+
+    function bindPushData (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -234,22 +241,10 @@ window.addEventListener('DOMContentLoaded', () => {
             `;
             form.insertAdjacentElement('afterend', statusMessage);
 
-            const formData = new FormData (form);
+            const formData = new FormData(form);
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            const object = {};
-            formData.forEach(function(value, key) {
-                object[key] = value; 
-            });
-            // request.send(json);
-
-            fetch('server.php', {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(object)
-            })
-            .then(data => data.text())
+            postData('http://localhost:3000/requests', json)
             .then(data => {
                 console.log(data);
                 showThanksModal(status.succes);
@@ -265,7 +260,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     forms.forEach((item) => {
-        pushData(item);
+        bindPushData(item);
     });
 
 
@@ -282,7 +277,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 <div  class="modal__close" data-close>×</div>
                 <div class="modal__title">${message}</div>
             </div>
-        `
+        `;
         document.querySelector('.modal').append(thanksModal);
 
         setTimeout(() => {
@@ -290,15 +285,85 @@ window.addEventListener('DOMContentLoaded', () => {
             prevModalDialog.classList.add('show');
             prevModalDialog.classList.remove('hide');
             closeModal();
-        }, 4000)
+        }, 4000);
     }
-    fetch('db.json')  
-        .then(data => data.json())
-        .then(res => console.log(res));
+
+    // fetch('http://localhost:3000/menu')  
+    //     .then(data => data.json())
+    //     .then(res => console.log(res));
+
+// 061 Создаем слайдер на сайте, вариант 1
+
+    const   sliderBtnNext = document.querySelector('.offer__slider-next');
+            sliderBtnPrev = document.querySelector('.offer__slider-prev');
+            sliderImgs = document.querySelectorAll('.offer__slide');
+            currentCounter = document.querySelector('#current');
+            index = currentCounter.textContent;
+
+    console.log(sliderImgs, currentCounter.textContent, sliderImgs.length);
+    
+    function resetIndex (currentIndex) {
+        if (currentIndex == sliderImgs.length) {
+            currentCounter.innerHTML = 01;
+            console.log('smth works');
+        } else {
+            indexRegulation(currentIndex);
+        }
+    }
+    
+    function indexRegulation (currentIndex) {
+        if (currentIndex >= 0 && currentIndex < 10) {
+            currentCounter.innerHTML = `0${currentIndex + 1}`;
+        } else {
+            currentCounter.innerHTML = currentIndex + 1;
+        }
+
+    }
+
+    
+
+    function showSlide (currentIndex) {
+        sliderImgs.forEach ((slide) => {
+            slide.classList.add ('hide');
+            slide.classList.remove('show');
+            sliderImgs[currentIndex].classList.add ('show');
+            sliderImgs[currentIndex].classList.remove('hide');
+        });
+    }
+
+    function nextSlide () {
+        sliderBtnNext.addEventListener('click', () => {
+            let nextIndex = index++;
+            // indexRegulation(nextIndex);
+            showSlide(nextIndex);
+            resetIndex(nextIndex);
+            console.log(nextIndex);
+        });
+    }
+
+    function prevSlide () {
+        sliderBtnPrev.addEventListener('click', () => {
+            let prevIndex = index--;
+            indexRegulation(prevIndex);
+            showSlide(prevIndex);   
+            console.log(prevIndex); 
+        });
+    }
+
+
+
+    showSlide(0);
+    nextSlide();
+    prevSlide();
+    
+    
+    
 });
     
 
 
+  
+  
 
 
 
