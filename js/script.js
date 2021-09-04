@@ -200,12 +200,12 @@ window.addEventListener('DOMContentLoaded', () => {
     //         });
     //     });
 
-    axios.get('http://localhost:3000/menu')
-        .then (data => {
-            data.data.forEach(({img, altimg, title, descr, price}) => {
-                new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
-        });
-    });
+    // axios.get('http://localhost:3000/menu')
+    //     .then (data => {
+    //         data.data.forEach(({img, altimg, title, descr, price}) => {
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
+    //     });
+    // });
     
 // 053 Реализация скрипта отправки данных на сервер
 // 056 Fetch API
@@ -298,55 +298,60 @@ window.addEventListener('DOMContentLoaded', () => {
             sliderBtnPrev = document.querySelector('.offer__slider-prev');
             sliderImgs = document.querySelectorAll('.offer__slide');
             currentCounter = document.querySelector('#current');
-            index = currentCounter.textContent;
+            pageIndex = currentCounter.textContent;
+            arrayIndex = currentCounter.textContent - 1;
 
-    console.log(sliderImgs, currentCounter.textContent, sliderImgs.length);
+    console.log(currentCounter.textContent, pageIndex, arrayIndex);
     
-    function resetIndex (currentIndex) {
-        if (currentIndex == sliderImgs.length) {
-            currentCounter.innerHTML = 01;
-            console.log('smth works');
-        } else {
-            indexRegulation(currentIndex);
-        }
+    function resetIndex (index) {
+            currentCounter.innerHTML = index;
+            // showSlide(0);
+            console.log('reset');
     }
     
-    function indexRegulation (currentIndex) {
-        if (currentIndex >= 0 && currentIndex < 10) {
-            currentCounter.innerHTML = `0${currentIndex + 1}`;
+    function indexRegulation (index) {
+        if (index >= 0 && index < 10) {
+            currentCounter.innerHTML = `0${index + 1}`;
         } else {
-            currentCounter.innerHTML = currentIndex + 1;
+            currentCounter.innerHTML = index + 1;
         }
 
     }
 
-    
-
-    function showSlide (currentIndex) {
+    function showSlide (index) {
         sliderImgs.forEach ((slide) => {
             slide.classList.add ('hide');
             slide.classList.remove('show');
-            sliderImgs[currentIndex].classList.add ('show');
-            sliderImgs[currentIndex].classList.remove('hide');
+            sliderImgs[index].classList.add ('show');
+            sliderImgs[index].classList.remove('hide');
         });
     }
 
     function nextSlide () {
         sliderBtnNext.addEventListener('click', () => {
-            let nextIndex = index++;
-            // indexRegulation(nextIndex);
+            let nextIndex = pageIndex++;
+            if (nextIndex > sliderImgs.length - 1) {
+                nextIndex = 0;
+                pageIndex = 1;
+            }
             showSlide(nextIndex);
-            resetIndex(nextIndex);
-            console.log(nextIndex);
+            indexRegulation(nextIndex);
+            console.log(nextIndex, pageIndex, currentCounter.textContent); 
+
         });
     }
 
     function prevSlide () {
         sliderBtnPrev.addEventListener('click', () => {
-            let prevIndex = index--;
+            pageIndex--;
+            let prevIndex = pageIndex - 1;
+            if (prevIndex <= 0) {
+                prevIndex = 3;
+                pageIndex = 4;
+            }
             indexRegulation(prevIndex);
             showSlide(prevIndex);   
-            console.log(prevIndex); 
+            console.log(prevIndex, pageIndex, currentCounter.textContent); 
         });
     }
 
