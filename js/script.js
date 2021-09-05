@@ -298,71 +298,106 @@ window.addEventListener('DOMContentLoaded', () => {
             sliderBtnPrev = document.querySelector('.offer__slider-prev');
             sliderImgs = document.querySelectorAll('.offer__slide');
             currentCounter = document.querySelector('#current');
-            pageIndex = currentCounter.textContent;
-            arrayIndex = currentCounter.textContent - 1;
+            total = document.querySelector('#total');
+    let     slideIndex = 1;
 
-    console.log(currentCounter.textContent, pageIndex, arrayIndex);
+    showSlide(slideIndex);
     
-    function resetIndex (index) {
-            currentCounter.innerHTML = index;
-            // showSlide(0);
-            console.log('reset');
-    }
-    
-    function indexRegulation (index) {
-        if (index >= 0 && index < 10) {
-            currentCounter.innerHTML = `0${index + 1}`;
+    if (sliderImgs.length < 10) {
+        total.innerHTML = `0${sliderImgs.length}`;
+    } else {
+        total.innerHTML = sliderImgs.length;
+    } 
+
+    function showSlide (n) {
+        if (n > sliderImgs.length) {
+            slideIndex = 1;
+        }
+        if (n < 1) {
+            slideIndex = sliderImgs.length;
+        }
+        if (currentCounter.textContent < 10) {
+            currentCounter.innerHTML = `0${slideIndex}`;
         } else {
-            currentCounter.innerHTML = index + 1;
+            currentCounter.innerHTML = slideIndex;
         }
 
-    }
-
-    function showSlide (index) {
-        sliderImgs.forEach ((slide) => {
-            slide.classList.add ('hide');
-            slide.classList.remove('show');
-            sliderImgs[index].classList.add ('show');
-            sliderImgs[index].classList.remove('hide');
+        sliderImgs.forEach((slide) => {
+            slide.classList.add('hide');
         });
+        sliderImgs[slideIndex - 1].classList.add('show', 'fade');
+        sliderImgs[slideIndex - 1].classList.remove('hide');
+        
+
     }
 
-    function nextSlide () {
-        sliderBtnNext.addEventListener('click', () => {
-            let nextIndex = pageIndex++;
-            if (nextIndex > sliderImgs.length - 1) {
-                nextIndex = 0;
-                pageIndex = 1;
-            }
-            showSlide(nextIndex);
-            indexRegulation(nextIndex);
-            console.log(nextIndex, pageIndex, currentCounter.textContent); 
-
-        });
+    function plusSlides (n) { 
+        showSlide(slideIndex += n);
     }
 
-    function prevSlide () {
-        sliderBtnPrev.addEventListener('click', () => {
-            pageIndex--;
-            let prevIndex = pageIndex - 1;
-            if (prevIndex <= 0) {
-                prevIndex = 3;
-                pageIndex = 4;
-            }
-            indexRegulation(prevIndex);
-            showSlide(prevIndex);   
-            console.log(prevIndex, pageIndex, currentCounter.textContent); 
-        });
-    }
+    sliderBtnNext.addEventListener('click', () => {
+        plusSlides(1);
+    });
 
+    sliderBtnPrev.addEventListener('click', () => {
+        plusSlides(-1);
+    });
 
+    
+    // function resetIndex (index) {
+    //         currentCounter.innerHTML = index;
+    //         // showSlide(0);
+    //         console.log('reset');
+    // }
+    
+    // function indexRegulation (index) {
+    //     if (index >= 0 && index < 10) {
+    //         currentCounter.innerHTML = `0${index + 1}`;
+    //     } else {
+    //         currentCounter.innerHTML = index + 1;
+    //     }
 
-    showSlide(0);
-    nextSlide();
-    prevSlide();
-    
-    
-    
+    // }
+
+    // function showSlide (index) {
+    //     sliderImgs.forEach ((slide) => {
+    //         slide.classList.add ('hide');
+    //         slide.classList.remove('show');
+    //         sliderImgs[index].classList.add ('show');
+    //         sliderImgs[index].classList.remove('hide');
+    //     });
+    // }
+
+    // function nextSlide () {
+    //     sliderBtnNext.addEventListener('click', () => {
+    //         let nextIndex = pageIndex++;
+    //         if (nextIndex > sliderImgs.length - 1) {
+    //             nextIndex = 0;
+    //             pageIndex = 1;
+    //         }
+    //         showSlide(nextIndex);
+    //         indexRegulation(nextIndex);
+    //         console.log(nextIndex, pageIndex, currentCounter.textContent); 
+
+    //     });
+    // }
+
+    // function prevSlide () {
+    //     sliderBtnPrev.addEventListener('click', () => {
+    //         pageIndex--;
+    //         let prevIndex = pageIndex - 1;
+    //         if (prevIndex <= 0) {
+    //             prevIndex = 3;
+    //             pageIndex = 4;
+    //         }
+    //         indexRegulation(prevIndex);
+    //         showSlide(prevIndex);   
+    //         console.log(prevIndex, pageIndex, currentCounter.textContent); 
+    //     });
+    // }
+    // showSlide(0);
+    // nextSlide();
+    // prevSlide();
 });
     
 
