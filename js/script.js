@@ -292,26 +292,29 @@ window.addEventListener('DOMContentLoaded', () => {
     //     .then(data => data.json())
     //     .then(res => console.log(res));
 
-// 061 Создаем слайдер на сайте, вариант 1
+// 061 Создаем слайдер на сайте 
 
-    const   sliderBtnNext = document.querySelector('.offer__slider-next');
-            sliderBtnPrev = document.querySelector('.offer__slider-prev');
-            sliderImgs = document.querySelectorAll('.offer__slide');
-            slidesField = document.querySelector('.offer__slider-inner');
-            slidesWrapper = document.querySelector('.offer__slider-wrapper');
-            width = window.getComputedStyle(slidesWrapper).width;
-            currentCounter = document.querySelector('#current');
+    const   sliderBtnNext = document.querySelector('.offer__slider-next'),
+            sliderBtnPrev = document.querySelector('.offer__slider-prev'),
+            sliderImgs = document.querySelectorAll('.offer__slide'),
+            sliderDom = document.querySelector('.offer__slider'),
+            slidesField = document.querySelector('.offer__slider-inner'),
+            slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+            width = window.getComputedStyle(slidesWrapper).width,
+            currentCounter = document.querySelector('#current'),
             total = document.querySelector('#total');
     let     slideIndex = 1,
             offset = 0;
-          
+
+// 061 вариант 1
+    
     // showSlide(slideIndex);
     
-    // if (sliderImgs.length < 10) {
-    //     total.innerHTML = `0${sliderImgs.length}`;
-    // } else {
-    //     total.innerHTML = sliderImgs.length;
-    // } 
+    if (sliderImgs.length < 10) {
+        total.innerHTML = `0${sliderImgs.length}`;
+    } else {
+        total.innerHTML = sliderImgs.length;
+    } 
 
     // function showSlide (n) {
     //     if (n > sliderImgs.length) {
@@ -348,15 +351,15 @@ window.addEventListener('DOMContentLoaded', () => {
     // });
     
 
-//062 Создаем слайдер на сайте, вариант 2
+//062 вариант 2 (карусель)
 
     indexRegulation(slideIndex);
 
-    if (sliderImgs.length > 10) {    
-        total = sliderImgs.length;
-    } else {
-        total = `0${sliderImgs.length}`;
-    }
+    // if (sliderImgs.length > 10) {    
+    //     total = sliderImgs.length;
+    // } else {
+    //     total = `0${sliderImgs.length}`;
+    // }
 
     function indexRegulation(n) {
         if (n > sliderImgs.length) {
@@ -365,16 +368,16 @@ window.addEventListener('DOMContentLoaded', () => {
         if (n < 1) {
             slideIndex = sliderImgs.length;
         }
-        if (currentCounter.textContent < 10) {
-            currentCounter.innerHTML = `0${slideIndex}`;
+        if (sliderImgs.length  < 10) {
+            currentCounter.textContent = `0${slideIndex}`;
         } else {
-            currentCounter.innerHTML = slideIndex;
+            currentCounter.textContent = slideIndex;
         }
     }
 
-    function plusIndex (n) {
-        indexRegulation(slideIndex += n);
-    }
+    // function plusIndex (n) {
+    //     indexRegulation(slideIndex += n);
+    // }
 
 
     slidesField.style.width = 100 * sliderImgs.length + '%' ;
@@ -388,60 +391,96 @@ window.addEventListener('DOMContentLoaded', () => {
     slidesWrapper.style.overflow = 'hidden';
 
     sliderBtnNext.addEventListener('click', () => {
+        
         if (offset == +width.slice(0, width.length - 2) * (sliderImgs.length - 1)) {
             offset = 0;
         } else {
             offset += +width.slice(0, width.length - 2);
         }
         slidesField.style.transform = `translateX(${-offset}px)`;
-        plusIndex(1);
+        
+        if(slideIndex == sliderImgs.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+        
+        if (sliderImgs.length < 10) {
+            currentCounter.textContent = `0${slideIndex}`;
+        } else {
+            currentCounter.textContent = slideIndex;
+        }
+
+        dotsArr.forEach(dot => dot.style.opacity = '.5');
+        dotsArr[slideIndex - 1].style.opacity = 1;
+        
     });
 
     sliderBtnPrev.addEventListener('click', () => {
+
         if (offset == 0) {
             offset = +width.slice(0, width.length - 2) * (sliderImgs.length - 1);
         } else {
             offset -= +width.slice(0, width.length - 2);
         }
         slidesField.style.transform = `translateX(${-offset}px)`;
-        plusIndex(-1);
+        
+        if(slideIndex == 1) {
+            slideIndex = sliderImgs.length;
+        } else {
+            slideIndex--;
+        }
+        
+        if (sliderImgs.length < 10) {
+            currentCounter.textContent = `0${slideIndex}`;
+        } else {
+            currentCounter.textContent = slideIndex;
+        }
+        
+        dotsArr.forEach(dot => dot.style.opacity = '.5');
+        dotsArr[slideIndex - 1].style.opacity = 1;
+        
     });
 
-//063 Создаем навигац   ию для слайдов 
-
-    const   sliderDom = document.querySelector('.offer__slider');
-            div = document.createElement('div');
-            
+//063 Создаем навигацию для слайдов
 
     sliderDom.style.position = 'relative';
-    div.classList.add('carousel-indicators');
-    sliderDom.append(div);
+    
+    const   dots = document.createElement('ol'),
+            dotsArr = [];
+
+    dots.classList.add('carousel-indicators');
+    sliderDom.append(dots);
 
     for (let i = 0; i < sliderImgs.length; i++) {
-        div.insertAdjacentHTML('beforeend', '<p class=dot></p>');
-    };
-
-    let dots = document.querySelectorAll('.dot');
-
-    div.addEventListener('click', (e) => {
-        if (e.target.className == 'dot') {
-           dots.forEach((dot, i) => {
-               if(e.target == dots[i]) {
-                    slideIndex = i + 1;
-                    offset = i * width.slice(0, width.length - 2);
-                    slidesField.style.transform = `translateX(${-offset}px)`;
-                    indexRegulation(slideIndex);
-                    console.log(i);
-               }
-           });
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);
+        dot.classList.add('dot');
+        dots.append(dot);
+        if (i == 0) {
+            dot.style.opacity = 1;
         }
+        dotsArr.push(dot); 
+    }
+
+    dotsArr.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+
+            slideIndex = slideTo;
+            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            slidesField.style.transform = `translateX(${-offset}px)`;
+            
+            if (sliderImgs.length < 10) {
+                currentCounter.textContent = `0${slideIndex}`;
+            } else {
+                currentCounter.textContent = slideIndex;
+            }
+
+            dotsArr.forEach(dot => dot.style.opacity = '.5');
+            dotsArr[slideIndex - 1].style.opacity = 1; 
+        });
     });
-
-    
-
-
-
-
 
 });
     
@@ -459,3 +498,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
     
+ 
