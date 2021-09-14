@@ -303,11 +303,17 @@ window.addEventListener('DOMContentLoaded', () => {
             width = window.getComputedStyle(slidesWrapper).width,
             currentCounter = document.querySelector('#current'),
             total = document.querySelector('#total');
+
     let     slideIndex = 1,
             offset = 0;
 
 // 061 вариант 1
-    
+
+    function makeNumber(string) {
+        num = +string.replace(/\D/ig, '');
+        return(num);
+    }
+
     // showSlide(slideIndex);
     
     if (sliderImgs.length < 10) {
@@ -355,11 +361,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
     indexRegulation(slideIndex);
 
-    // if (sliderImgs.length > 10) {    
-    //     total = sliderImgs.length;
-    // } else {
-    //     total = `0${sliderImgs.length}`;
-    // }
+    function currentIndexPush() {
+        if (slideIndex  < 10) {
+            currentCounter.textContent = `0${slideIndex}`;
+        } else {
+            currentCounter.textContent = slideIndex;
+        }
+    }
+
+    function dotsOpacityControll() {
+        dotsArr.forEach(dot => dot.style.opacity = '.5');
+        dotsArr[slideIndex - 1].style.opacity = 1;
+    }
 
     function indexRegulation(n) {
         if (n > sliderImgs.length) {
@@ -368,11 +381,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (n < 1) {
             slideIndex = sliderImgs.length;
         }
-        if (sliderImgs.length  < 10) {
-            currentCounter.textContent = `0${slideIndex}`;
-        } else {
-            currentCounter.textContent = slideIndex;
-        }
+        currentIndexPush();
     }
 
     // function plusIndex (n) {
@@ -391,11 +400,10 @@ window.addEventListener('DOMContentLoaded', () => {
     slidesWrapper.style.overflow = 'hidden';
 
     sliderBtnNext.addEventListener('click', () => {
-        
-        if (offset == +width.slice(0, width.length - 2) * (sliderImgs.length - 1)) {
+        if (offset == makeNumber(width) * (sliderImgs.length - 1)) {
             offset = 0;
         } else {
-            offset += +width.slice(0, width.length - 2);
+            offset += makeNumber(width);
         }
         slidesField.style.transform = `translateX(${-offset}px)`;
         
@@ -404,24 +412,15 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             slideIndex++;
         }
-        
-        if (sliderImgs.length < 10) {
-            currentCounter.textContent = `0${slideIndex}`;
-        } else {
-            currentCounter.textContent = slideIndex;
-        }
-
-        dotsArr.forEach(dot => dot.style.opacity = '.5');
-        dotsArr[slideIndex - 1].style.opacity = 1;
-        
+        currentIndexPush();
+        dotsOpacityControll()
     });
 
     sliderBtnPrev.addEventListener('click', () => {
-
         if (offset == 0) {
-            offset = +width.slice(0, width.length - 2) * (sliderImgs.length - 1);
+            offset = makeNumber(width) * (sliderImgs.length - 1);
         } else {
-            offset -= +width.slice(0, width.length - 2);
+            offset -= makeNumber(width);
         }
         slidesField.style.transform = `translateX(${-offset}px)`;
         
@@ -430,16 +429,8 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             slideIndex--;
         }
-        
-        if (sliderImgs.length < 10) {
-            currentCounter.textContent = `0${slideIndex}`;
-        } else {
-            currentCounter.textContent = slideIndex;
-        }
-        
-        dotsArr.forEach(dot => dot.style.opacity = '.5');
-        dotsArr[slideIndex - 1].style.opacity = 1;
-        
+        currentIndexPush();
+        dotsOpacityControll();
     });
 
 //063 Создаем навигацию для слайдов
@@ -468,17 +459,11 @@ window.addEventListener('DOMContentLoaded', () => {
             const slideTo = e.target.getAttribute('data-slide-to');
 
             slideIndex = slideTo;
-            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            offset = makeNumber(width) * (slideTo - 1);
             slidesField.style.transform = `translateX(${-offset}px)`;
             
-            if (sliderImgs.length < 10) {
-                currentCounter.textContent = `0${slideIndex}`;
-            } else {
-                currentCounter.textContent = slideIndex;
-            }
-
-            dotsArr.forEach(dot => dot.style.opacity = '.5');
-            dotsArr[slideIndex - 1].style.opacity = 1; 
+            currentIndexPush()
+            dotsOpacityControll();
         });
     });
 
